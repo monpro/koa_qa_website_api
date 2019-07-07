@@ -46,7 +46,7 @@ build/Release
 node_modules/
 jspm_packages/
 .idea/
-.package-lock.json
+.package-lock.jsoncheckout -b
 # TypeScript v1 declaration files
 typings/
 
