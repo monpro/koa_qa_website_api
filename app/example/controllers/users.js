@@ -1,23 +1,41 @@
-const db = [{name:'mike'}]
-
+const User = require('../models/users');
 
 class UserCtl {
-    find(context){
-        context.body = db;
+    async find(context){
+        context.body = await User.find();
     }
-    findById(context){
-        context.body = db[context.params.id];
+    async findById(context){
+        const user = await User.findById(context.params.id);
+        if(!user)
+            context.throw(404,"user doesn't exist")
+        context.body = user;
     }
-    create(context){
-        db.push(context.request.body)
-        context.body = context.request.body;
+
+    async create(context){
+        context.verifyParams({
+            name: {type: 'string', required: true},
+        });
+
+        const user = await new User(context.request.body).save();
+        context.body = user;
     }
-    update(context){
-        db[context.params.id * 1] = context.request.body;
-        context.body = context.request.body;
+
+    async update(context){
+        context.verifyParams({
+            name: {type: 'string', required: true}
+        });
+        const user = await User.findByIdAndUpdate(context.params.id, context.request.body);
+        if(!user){
+            context.throw(404, "User doesn't exist")
+        }
+        context.body = user;
     }
-    delete(context){
-        db.splice(context.params.id * 1, 1);
+
+    async delete(context){
+        const user = await User.findByIdAndRemove(context.params.id);
+        if(!user){
+            context.throw(404)
+        }
         context.status = 204;
     }
 }
