@@ -1,5 +1,6 @@
+const jsonwebtoken = require('jsonwebtoken');
 const User = require('../models/users');
-
+const {secret} = require('../config');
 class UserCtl {
     async find(context){
         context.body = await User.find();
@@ -14,15 +15,21 @@ class UserCtl {
     async create(context){
         context.verifyParams({
             name: {type: 'string', required: true},
+            password: {type: 'string', required: true}
         });
-
+        const {name} = context.request.body;
+        const repeatedUser = await User.findOne({name});
+        if(repeatedUser)
+            context.throw(409, "User is already existed");
         const user = await new User(context.request.body).save();
         context.body = user;
     }
 
     async update(context){
         context.verifyParams({
-            name: {type: 'string', required: true}
+            name: {type: 'string', required: false},
+            password: {type: 'string', required: false}
+
         });
         const user = await User.findByIdAndUpdate(context.params.id, context.request.body);
         if(!user){
@@ -37,6 +44,21 @@ class UserCtl {
             context.throw(404)
         }
         context.status = 204;
+    }
+
+    async login(context){
+        context.verifyParams({
+            name: {type: 'string', required: true},
+            password: {type: 'string', required: true}
+        })
+        const user = await User.findOne(context.request.body);
+        if(!user)
+            context.throw(401, "username or password is not correct");
+
+        const {_id, name} = user;
+        const token = jsonwebtoken.sign({_id, name}, secret, {expiresIn: '1d'});
+        context.body = {token};
+
     }
 }
 
