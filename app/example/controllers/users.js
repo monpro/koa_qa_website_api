@@ -6,7 +6,9 @@ class UserCtl {
         context.body = await User.find();
     }
     async findById(context){
-        const user = await User.findById(context.params.id);
+        const {fields} = context.query;
+        const selectFields = fields.split(";").filter(f => f).map(f => ' +' + f).join('');
+        const user = await User.findById(context.params.id).select(selectFields);
         if(!user)
             context.throw(404,"user doesn't exist")
         context.body = user;
@@ -34,7 +36,15 @@ class UserCtl {
     async update(context){
         context.verifyParams({
             name: {type: 'string', required: false},
-            password: {type: 'string', required: false}
+            password: {type: 'string', required: false},
+            avatar_url: {type: 'string', required: false},
+            gender: {type: 'string', required: false},
+            headline: {type: 'string', required: false},
+            locations: {type: 'array', itemType: 'string', required: false},
+            business: {type: 'string', required: false},
+            employments: {type: 'array', itemType: 'object', required: false},
+            educations: {type: 'array', itemType: 'object', required: false},
+
 
         });
         const user = await User.findByIdAndUpdate(context.params.id, context.request.body);
