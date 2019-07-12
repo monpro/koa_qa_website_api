@@ -12,6 +12,12 @@ class UserCtl {
         context.body = user;
     }
 
+    async checkOwner(context, next){
+        if(context.params.id !== context.state.user._id)
+            context.throw(403, "you don't have authority to do this operation")
+        await next();
+    }
+
     async create(context){
         context.verifyParams({
             name: {type: 'string', required: true},
@@ -39,6 +45,7 @@ class UserCtl {
     }
 
     async delete(context){
+        console.log("you here")
         const user = await User.findByIdAndRemove(context.params.id);
         if(!user){
             context.throw(404)
@@ -54,7 +61,6 @@ class UserCtl {
         const user = await User.findOne(context.request.body);
         if(!user)
             context.throw(401, "username or password is not correct");
-
         const {_id, name} = user;
         const token = jsonwebtoken.sign({_id, name}, secret, {expiresIn: '1d'});
         context.body = {token};
