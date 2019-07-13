@@ -3,12 +3,34 @@ const User = require('../models/users');
 const {secret} = require('../config');
 class UserCtl {
     async find(context){
-        context.body = await User.find();
+        const {per_page = 10} = context.query;
+        const page = Math.max(context.query.page * 1, 1) - 1;
+        const perPage = Math.max(per_page, 1);
+        context.body = await User
+            .find({name: new RegExp(context.query.q)})
+            .limit(perPage)
+            .skip(page * perPage);
     }
+
     async findById(context){
         const {fields = ""} = context.query;
         const selectFields = fields.split(";").filter(f => f).map(f => ' +' + f).join('');
-        const user = await User.findById(context.params.id).select(selectFields);
+        const pupulateFields = fields.split(";").filter(f => f)
+            .map(f=>{
+                if(f === "employments"){
+                    return "employments.company employments.job";
+                }
+                else if(f === "educations"){
+                    return "educations.school educations.major";
+                }
+                else{
+                    return f;
+                }
+            }).join(" ");
+        console.log(pupulateFields)
+        const user = await User.findById(context.params.id)
+            .select(selectFields)
+            .populate(pupulateFields);
         if(!user)
             context.throw(404,"user doesn't exist")
         context.body = user;
@@ -51,13 +73,13 @@ class UserCtl {
             business: {type: 'string', required: false},
             employments: {type: 'array', itemType: 'object', required: false},
             educations: {type: 'array', itemType: 'object', required: false},
-
-
         });
+
         const user = await User.findByIdAndUpdate(context.params.id, context.request.body);
         if(!user){
             context.throw(404, "User doesn't exist")
         }
+        console.log(user)
         context.body = user;
     }
 
