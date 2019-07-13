@@ -5,7 +5,9 @@ const jsonWebToken = require('jsonwebtoken');
 const {find, findById, create,
         update, delete: del,login,
         checkOwner, listFollowing, listFollower,
-        follow, unFollow, checkUserExist} = require('../controllers/users');
+        follow, unFollow, checkUserExist,
+        followTopic, unFollowTopic, listFollowingTopics} = require('../controllers/users');
+const {checkTopicExist} = require('../controllers/topics');
 
 const {secret} = require("../config");
 const auth = jwt({secret});
@@ -30,5 +32,12 @@ router.get('/:id/followers', listFollower);
 
 router.put('/following/:id', auth, checkUserExist, follow);
 
+router.get('/:id/followingTopics', listFollowingTopics);
+
 router.delete('/following/:id', auth,checkUserExist, unFollow);
+
+router.put('/followingTopics/:id', auth, checkTopicExist, followTopic);
+
+router.delete('/followingTopics/:id', auth,checkTopicExist, unFollowTopic);
+
 module.exports = router;

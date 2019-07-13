@@ -136,6 +136,33 @@ class UserCtl {
         }
         context.status = 204;
     }
+
+    async listFollowingTopics(context){
+        const user = await User.findById(context.params.id).select("+followingTopics").populate("followingTopics");
+        console.log(user)
+        if(!user)
+            context.throw(404, "User does not exist");
+        context.body = user.followingTopics;
+    }
+
+    async followTopic(context){
+        const userAuth = await User.findById(context.state.user._id).select("+followingTopics");
+        if(!userAuth.followingTopics.map(id => id.toString()).includes(context.params.id)){
+            userAuth.followingTopics.push(context.params.id);
+            userAuth.save();
+        }
+        context.status = 204;
+    }
+
+    async unFollowTopic(context){
+        const userAuth = await User.findById(context.state.user._id).select("+followingTopics")
+        const index = userAuth.followingTopics.map(id => id.toString()).indexOf(context.params.id);
+        if(index > -1) {
+            userAuth.followingTopics.splice(index, 1);
+            userAuth.save();
+        }
+        context.status = 204;
+    }
 }
 
 module.exports = new UserCtl();
