@@ -6,7 +6,7 @@ class UserCtl {
         context.body = await User.find();
     }
     async findById(context){
-        const {fields} = context.query;
+        const {fields = ""} = context.query;
         const selectFields = fields.split(";").filter(f => f).map(f => ' +' + f).join('');
         const user = await User.findById(context.params.id).select(selectFields);
         if(!user)
@@ -17,6 +17,13 @@ class UserCtl {
     async checkOwner(context, next){
         if(context.params.id !== context.state.user._id)
             context.throw(403, "you don't have authority to do this operation")
+        await next();
+    }
+
+    async checkUserExist(context, next){
+        const user = await User.findById(context.params.id);
+        if(!user)
+            context.throw(404, "user doesn't exist")
         await next();
     }
 
@@ -74,7 +81,38 @@ class UserCtl {
         const {_id, name} = user;
         const token = jsonwebtoken.sign({_id, name}, secret, {expiresIn: '1d'});
         context.body = {token};
+    }
 
+    async listFollowing(context){
+        const user = await User.findById(context.params.id).select("+following").populate("following");
+        console.log(user)
+        if(!user)
+            context.throw(404);
+        context.body = user.following;
+    }
+
+    async listFollower(context){
+        const users = await User.find({following: context.params.id});
+        context.body = users;
+    }
+
+    async follow(context){
+        const userAuth = await User.findById(context.state.user._id).select("+following").populate("following");
+        if(!userAuth.following.map(id => id.toString()).includes(context.params.id)){
+            userAuth.following.push(context.params.id);
+            userAuth.save();
+        }
+        context.status = 204;
+    }
+
+    async unFollow(context){
+        const userAuth = await User.findById(context.state.user._id).select("+following")
+        const index = userAuth.following.map(id => id.toString()).indexOf(context.params.id);
+        if(index > -1) {
+            userAuth.following.splice(index, 1);
+            userAuth.save();
+        }
+        context.status = 204;
     }
 }
 
