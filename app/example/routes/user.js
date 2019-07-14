@@ -34,7 +34,7 @@ router.put('/following/:id', auth, checkUserExist, follow);
 
 router.get('/:id/followingTopics', listFollowingTopics);
 
-router.delete('/following/:id', auth,checkUserExist, unFollow);
+router.delete('/following/:id', auth, checkUserExist, unFollow);
 
 router.put('/followingTopics/:id', auth, checkTopicExist, followTopic);
 
