@@ -1,5 +1,6 @@
 const jsonwebtoken = require('jsonwebtoken');
 const User = require('../models/users');
+const Question = require('../models/questions');
 const {secret} = require('../config');
 class UserCtl {
     async find(context){
@@ -27,7 +28,6 @@ class UserCtl {
                     return f;
                 }
             }).join(" ");
-        console.log(pupulateFields)
         const user = await User.findById(context.params.id)
             .select(selectFields)
             .populate(pupulateFields);
@@ -79,12 +79,10 @@ class UserCtl {
         if(!user){
             context.throw(404, "User doesn't exist")
         }
-        console.log(user)
         context.body = user;
     }
 
     async delete(context){
-        console.log("you here")
         const user = await User.findByIdAndRemove(context.params.id);
         if(!user){
             context.throw(404)
@@ -107,7 +105,6 @@ class UserCtl {
 
     async listFollowing(context){
         const user = await User.findById(context.params.id).select("+following").populate("following");
-        console.log(user)
         if(!user)
             context.throw(404);
         context.body = user.following;
@@ -139,7 +136,6 @@ class UserCtl {
 
     async listFollowingTopics(context){
         const user = await User.findById(context.params.id).select("+followingTopics").populate("followingTopics");
-        console.log(user)
         if(!user)
             context.throw(404, "User does not exist");
         context.body = user.followingTopics;
@@ -162,6 +158,11 @@ class UserCtl {
             userAuth.save();
         }
         context.status = 204;
+    }
+
+    async listQuestions(context){
+        const questions = await Question.find({questioner: context.params.id});
+        context.body = questions;
     }
 }
 
