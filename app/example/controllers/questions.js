@@ -1,9 +1,6 @@
 const Question = require('../models/questions');
 const User = require('../models/questions');
 class QuestionCtl {
-
-
-
     async find(context){
         const {per_page = 10} = context.query;
         const page = Math.max(context.query.page * 1, 1) - 1;
@@ -53,8 +50,7 @@ class QuestionCtl {
         context.verifyParams({
             title: {type: "string", required: true},
             description: {type: "string", required: false},
-        })
-
+        });
         await context.state.question.update(context.request.body);
         context.body = context.state.question;
     }
