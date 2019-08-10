@@ -15,7 +15,7 @@ class QuestionCtl {
     async checkQuestioner(context, next){
         const {question} = context.state;
         if(question.questioner.toString() !== context.state.user._id)
-            context.throw(403, "you don't have authority to do it")
+            context.throw(403, "no permission")
         await next();
     }
 
