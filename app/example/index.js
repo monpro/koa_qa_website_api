@@ -16,6 +16,7 @@ app.use(koaStatic(path.join(__dirname, 'public')))
 app.use(error({
     postFormat: (e,{stack,...rest})=> process.env.NODE_ENV === 'production' ? rest: {stack, ...rest}
 }));
+
 app.use(koaBody({
     multipart: true,
     formidable:{
@@ -23,6 +24,8 @@ app.use(koaBody({
         keepExtensions: true
     }
 }));
+
+
 app.use(parameter(app));
 routing(app);
 
