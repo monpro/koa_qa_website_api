@@ -1,9 +1,6 @@
 const Topic = require('../models/topics');
 const User = require('../models/users');
 class TopicCtl {
-
-
-
     async find(context){
         const {per_page = 10} = context.query;
         const page = Math.max(context.query.page * 1, 1) - 1;

@@ -63,3 +63,5 @@ class AnswersCtl{
     }
     
 }
+
+module.exports = new AnswersCtl();
