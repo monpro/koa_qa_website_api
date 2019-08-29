@@ -9,9 +9,9 @@ const parameter = require('koa-parameter');
 const routing = require('./routes');
 const {connectionString } = require('./config');
 
-mongoose.connect(connectionString, { useNewUrlParser: true } ,
-    () => console.log('database connection succeed'));
-mongoose.connection.on('error',console.error);
+// mongoose.connect(connectionString, { useNewUrlParser: true } ,
+//     () => console.log('database connection succeed'));
+// mongoose.connection.on('error',console.error);
 
 app.use(koaStatic(path.join(__dirname, 'public')))
 app.use(error({
@@ -32,4 +32,3 @@ routing(app);
 
 module.exports = app.listen(3000, () => console.log("service starting at 3000"));
 
-// module.exports = app.listen(3000);
