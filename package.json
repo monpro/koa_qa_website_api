@@ -20,7 +20,7 @@
     "koa-parameter": "^3.0.1",
     "koa-router": "^7.4.0",
     "koa-static": "^5.0.0",
-    "mongoose": "^5.6.3"
+    "mongoose": "^5.7.5"
   },
   "devDependencies": {
     "jest": "^24.9.0",
